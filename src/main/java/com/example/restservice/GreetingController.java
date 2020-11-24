@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-@CrossOrigin /*(origins = "http://localhost:4200/", allowedHeaders = "*")*/
+//@CrossOrigin /*(origins = "http://localhost:4200/", allowedHeaders = "*")*/
+//@CrossOrigin (origins = "http://localhost:4200/", allowedHeaders = "*")
 @RestController
 public class GreetingController {
 
@@ -29,7 +30,7 @@ public class GreetingController {
 		return new Greeting(counter.incrementAndGet(), String.format(template, name));
 	}
 	 
-	
+	@CrossOrigin
 	@RequestMapping(value="/process", method = RequestMethod.POST)
     public void process(@RequestBody String payload) throws Exception {
         System.out.println(payload);

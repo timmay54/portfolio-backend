@@ -1,0 +1,28 @@
+version: '3'
+
+# Tim's notes!
+# https://doc.traefik.io/traefik/getting-started/quick-start/
+# Above link does not work on windows!
+# Pulled from this link instead:
+# https://community.traefik.io/t/how-to-run-on-windows-host-with-docker-provider/4834/2
+
+services:
+  traefik:
+    image: stefanscherer/traefik-windows
+    command: --api.insecure=true --providers.docker --providers.docker.endpoint=npipe:////./pipe/docker_engine
+    ports:
+    - "8080:8080" # Please read: https://docs.traefik.io/configuration/api/#security
+    - "443:443"
+    - "80:80"
+    #isolation: process # workaround for https://github.com/containous/traefik/issues/4409
+    
+    volumes:
+      - D:/traefikdata:C:/etc/traefik
+      - ${USERPROFILE}/.docker:C:/etc/ssl:ro
+
+  portfolio-backend:
+    build: "."
+    image: portfolio-backend:0.0.1
+    labels:
+    - "traefik.http.routers.whoami1.rule=Host(whoami1.docker.localhost)"
+

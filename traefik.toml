@@ -1,0 +1,46 @@
+debug = true
+
+logLevel = "DEBUG"
+defaultEntryPoints = ["https","http"]
+
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+    [entryPoints.http.redirect]
+      # entryPoint = "web"
+  [entryPoints.https]
+    address = ":443"
+  [entryPoints.https.tls]
+  [entryPoints.admin]
+  address = ":8083"
+    # [entryPoints.admin.auth]
+    #[entryPoints.admin.auth.basic]
+    #  users = [
+    #    "test:test"
+    #  ]
+[retry]
+
+[api]
+insecure = true
+entryPoint = "admin"
+dashboard = true
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "timmay54.duckdns.org"
+watch = true
+exposedByDefault = false
+
+[acme]
+email = "timothymardesen@yahoo.com"
+# entryPoint = "https"
+storage = "/acme.json"
+caServer = "https://acme-v02.api.letsencrypt.org/directory"
+onHostRule = true
+  [acme.dnsChallenge]
+  provider = "duckdns"
+  delayBeforeCheck = 0
+  [[acme.domains]]
+   main = "timmay54.duckdns.org"
+  [[acme.domains]]
+   main = "*.timmay54.duckdns.org"

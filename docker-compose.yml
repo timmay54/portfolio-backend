@@ -5,24 +5,44 @@ version: '3'
 # Above link does not work on windows!
 # Pulled from this link instead:
 # https://community.traefik.io/t/how-to-run-on-windows-host-with-docker-provider/4834/2
+# above link also does not work
 
 services:
-  traefik:
-    image: stefanscherer/traefik-windows
-    command: --api.insecure=true --providers.docker --providers.docker.endpoint=npipe:////./pipe/docker_engine
+  reverse-proxy:
+    image: traefik:v2.3.4
+    command: --api.insecure=true --providers.docker
     ports:
-    - "8080:8080" # Please read: https://docs.traefik.io/configuration/api/#security
-    - "443:443"
-    - "80:80"
+      - "8080:8080" # Please read: https://docs.traefik.io/configuration/api/#security
+      - "443:443"
+      - "80:80"
+
     #isolation: process # workaround for https://github.com/containous/traefik/issues/4409
     
     volumes:
-      - D:/traefikdata:C:/etc/traefik
-      - ${USERPROFILE}/.docker:C:/etc/ssl:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik-3.yml:/traefik.yml
+        #- ./acme.json:/acme.json
+
+    environment:
+      - DUCKDNS_TOKEN=4d3fbc7c-718f-4807-ba8e-7fca0a14177e
+
+        #whoami:
+        #image: traefik/whoami
+        #labels:
+        #- "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
 
   portfolio-backend:
     build: "."
     image: portfolio-backend:0.0.1
+    ports:
+      - "8090:8090"
     labels:
-    - "traefik.http.routers.whoami1.rule=Host(whoami1.docker.localhost)"
-
+    #- "traefik.http.routers.portfolio-backend.rule=Host(`portfolio-backend.docker.localhost`)"
+      - "traefik.http.routers.portfolio-backend.rule=Host(`timmay54.duckdns.org`)"
+      - "traefik.backend=portfolio-backend"
+      - "traefik.http.routers.portfolio-backend.tls=true"
+      - "traefik.http.routers.portfolio-backend.tls.certresolver=le"
+      - "traefik.http.routers.portfolio-backend.entrypoints=websecure"
+      - "traefik.frontend.rule=Host:portfolio-backend"
+      - "traefik.port=8090"
+      - "traefik.enable=true"
